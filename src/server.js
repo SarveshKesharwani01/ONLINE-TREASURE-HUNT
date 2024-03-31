@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json())
 app.use(
   cors({
-    origin: ["http://localhost:3000","https://celebrated-lily-012407.netlify.app"],
+    origin: ["http://localhost:3000","https://master--onlinetreasurehunt.netlify.app"],
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -34,7 +34,7 @@ app.use(
 app.use((req, res, next) => {
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "https://celebrated-lily-012407.netlify.app"
+    "https://master--onlinetreasurehunt.netlify.app"
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -218,6 +218,7 @@ app.post("/SignUp", async (req, res) => {
 app.get("/questions", initializeUserProgress, async (req, res) => {
   try {
     // Retrieve user's ID from the session
+    console.log("Request session: " ,req.session)
     const userId = req.session.userId;
     console.log("User ID:", userId);
 
