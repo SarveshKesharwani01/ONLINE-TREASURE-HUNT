@@ -452,3 +452,26 @@ app.get("/Leaderboard", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+
+/*
+
+user = {
+  "questionID":"Timestamp"
+}
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    phone_number VARCHAR(20),
+    password VARCHAR(100),
+    progress JSONB
+);
+
+UPDATE users
+SET progress = '{"question1": "2024-03-31 10:00:00", "question2": "2024-03-31 10:15:00"}'
+WHERE user_id = <user_id>;
+
+SELECT * FROM users WHERE email = 'user@example.com';
+
+*/
