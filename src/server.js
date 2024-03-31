@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import env from "dotenv";
 import cors from "cors";
-
+import pgSession from 'connect-pg-simple';
 
 
 const app = express();
@@ -19,6 +19,7 @@ app.use(
     credentials: true,
   })
 );
+
 // app.use(function(req, res, next) {
 //   // res.header("Access-Control-Allow-Origin", "*");
 //   const allowedOrigins = ['http://localhost:3000', 'https://66070d5c0798463d4bd9c713--magical-puffpuff-b5ca65.netlify.app/', 'https://66070d5c0798463d4bd9c713--magical-puffpuff-b5ca65.netlify.app/'];
@@ -57,7 +58,19 @@ const port = process.env.port || 3001;
 const saltRounds = 10;
 env.config();
 
+const pgSessionStore = pgSession(session);
+
 const sessionOptions = {
+  store: new pgSessionStore({
+    conObject: {
+      connectionString: process.env.DB_URL, // Your PostgreSQL connection string
+      ssl: {
+        rejectUnauthorized: true,
+        // Other SSL/TLS options can be specified here if needed
+      }
+    },
+    tableName: 'sessions', // Name of the table to store sessions
+  }),
   secret: "TOPSECRETWORD",
   resave: false,
   saveUninitialized: true,
@@ -68,6 +81,17 @@ const sessionOptions = {
     // sameSite: "strict",
   }
 };
+// const sessionOptions = {
+//   secret: "TOPSECRETWORD",
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: {
+//     maxAge: 72 * 60 * 60 * 1000, // 72 hrs
+//     httpOnly: false,
+//     secure: process.env.NODE_ENV === 'production', // Enable this if using HTTPS
+//     // sameSite: "strict",
+//   }
+// };
 
 // Check if the environment is production and if so, set the secure flag for cookies
 if (process.env.NODE_ENV === 'production') {
@@ -118,10 +142,10 @@ const initializeUserProgress = (req, res, next) => {
   next();
 };
 
-app.use(initializeUserProgress);
+// app.use(initializeUserProgress);
 
 const requireLogin = (req, res, next) => {
-  console.log(req.session)
+  console.log("Require login", req.session)
   console.log(req.session.userId)
   if (!req.session.userId) {
     return res.status(401).send({ error: "Unauthorized" });
@@ -141,6 +165,12 @@ app.get("/Login", (req, res) => {
 app.post("/Login", async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  if (!req.session.userProgress) {
+    req.session.userProgress = {};
+  }
+  if(!req.session.userId){
+    req.session.userId = null
+  }
 
   try {
     const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
@@ -153,10 +183,14 @@ app.post("/Login", async (req, res) => {
       const match = await bcrypt.compare(password, storedHashedPassword);
         if (match) {
           req.session.userId = user.user_id;
+          if(!req.session.userProgress[req.session.userId]){
+            req.session.userProgress[req.session.userId] = {}
+          }
           req.session.userProgress[user.user_id] = req.session.userProgress[user.user_id] || {};
           req.session.user = user;
           
-          console.log("userId assigned to session:", req.session.userId);     
+          console.log("userId assigned to session:", req.session.userId);
+          console.log("login session: ", req.session);     
           res.send({status:true, userId: user.id});
         } else {
           console.log("this is error",err);
