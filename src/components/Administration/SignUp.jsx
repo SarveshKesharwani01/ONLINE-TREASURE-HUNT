@@ -35,7 +35,7 @@ const SignUp = () => {
     e.preventDefault();
     console.log("Form submitted with data:", formData);
     try {
-      const response = await axios.post('https://localhost:3001/SignUp', formData);
+      const response = await axios.post('http://localhost:3001/SignUp', formData);
         console.log("Server response:",response.data.status);
         navigate('/Login');
       // Reset form after successful signup

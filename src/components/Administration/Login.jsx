@@ -35,7 +35,7 @@ const Login = () => {
     e.preventDefault();
     console.log("Form submitted with data:", formData);
     try {
-      const response = await axios.post('https://localhost:3001/Login', formData);
+      const response = await axios.post('http://localhost:3001/Login', formData);
         console.log('Login response:', response);
         if(response.data.status){
           // Redirect to dashboard or another page upon successful login
@@ -51,7 +51,7 @@ const Login = () => {
   };
 
   useEffect(() => {
-    axios.get('https://localhost:3001/Login').then((response) => {
+    axios.get('http://localhost:3001/Login').then((response) => {
       if (response.data.loggedIn == true) {
         setLoginError(response.data.user);
       }
