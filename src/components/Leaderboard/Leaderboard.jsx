@@ -25,7 +25,7 @@ const Leaderboard = () => {
 
   const fetchLeaderboardData = async () => {
     try {
-      const response = await axios.get('https://online-treasure-hunt-s53t.onrender.com/Leaderboard');
+      const response = await axios.get('https://localhost:3001/Leaderboard');
       setLeaderboardData(response.data.leaderboard);
     } catch (error) {
       console.error("Error fetching leaderboard data:", error);

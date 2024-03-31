@@ -102,13 +102,19 @@ const initializeUserProgress = (req, res, next) => {
   if (!req.session.userProgress) {
     req.session.userProgress = {};
   }
-
+  
   const userId = req.session.userId;
 
-  if (!req.session.userProgress[userId]) {
-    req.session.userProgress[userId] = {}; // Initialize progress for the user if it doesn't exist
+  if (!userId) {
+    // New user, initialize progress starting from question 1
+    req.session.userProgress = { 1: true }; // Assuming question 1 has ID 1
+  } else {
+    // Returning user, retrieve progress from session
+    if (!req.session.userProgress[userId]) {
+      req.session.userProgress[userId] = {};
+    }
   }
-
+  
   next();
 };
 
@@ -215,7 +221,7 @@ app.post("/SignUp", async (req, res) => {
 // };
 
 // Define route to fetch questions  requireLogin,
-app.get("/questions", initializeUserProgress, async (req, res) => {
+app.get("/questions", requireLogin, async (req, res) => {
   try {
     // Retrieve user's ID from the session
     console.log("Request session: " ,req.session)
